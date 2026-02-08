@@ -1,45 +1,18 @@
-import { useState } from "react";
-import Requester from "./Requester";
-import RichGuy from "./RichGuy";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
+import RichGuy from "./pages/RichGuy";
+import Requester from "./pages/Requester";
+import Payment from "./pages/Payment";
 
-function App() {
-  const [mode, setMode] = useState("landing");
-
-  if (mode === "requester") {
-    return (
-      <Requester
-        goBack={() => setMode("landing")}
-        goRich={() => setMode("rich")}
-      />
-    );
-  }
-
-  if (mode === "rich") {
-    return (
-      <RichGuy
-        goBack={() => setMode("landing")}
-        goRequester={() => setMode("requester")}
-      />
-    );
-  }
-
+export default function App() {
   return (
-    <div className="h-screen grid grid-cols-2">
-      <div
-        onClick={() => setMode("requester")}
-        className="bg-indigo-600 text-white flex items-center justify-center text-2xl cursor-pointer"
-      >
-        I HAVE A REQUEST
-      </div>
-
-      <div
-        onClick={() => setMode("rich")}
-        className="bg-gray-900 text-yellow-400 flex items-center justify-center text-2xl cursor-pointer"
-      >
-        I AM THE RICH GUY!!
-      </div>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/rich-guy" element={<RichGuy />} />
+        <Route path="/requester" element={<Requester />} />
+        <Route path="/pay" element={<Payment />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
-
-export default App;
