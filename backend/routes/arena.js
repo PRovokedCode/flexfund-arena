@@ -6,7 +6,7 @@ const router = express.Router();
 
 // POST /api/submit-request
 router.post("/submit-request", async (req, res) => {
-  const { text, image } = req.body;
+  const { text, image, amountNeeded } = req.body;
 
   const result = await moderateRequest(text, image);
 
@@ -18,14 +18,15 @@ router.post("/submit-request", async (req, res) => {
   }
 
   const newRequest = {
-    id: requests.length,
-    text,
-    image: image || null,
-    category: result.category,
-    headline: result.headline,
-    flexValue: result.flexValue,
-    fundedBy: null,
-  };
+  id: requests.length,
+  text,
+  image: image || null,
+  amountNeeded: amountNeeded || 0,
+  category: result.category,
+  headline: result.headline,
+  flexValue: result.flexValue,
+  fundedBy: null,
+};
 
   requests.push(newRequest);
 

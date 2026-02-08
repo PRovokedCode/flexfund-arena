@@ -7,6 +7,7 @@ export default function Requester() {
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const [amount, setAmount] = useState("");
 
   const handleImage = (e) => {
     const file = e.target.files[0];
@@ -26,7 +27,8 @@ export default function Requester() {
     try {
       const res = await axios.post(`${API_BASE}/submit-request`, {
         text,
-        image
+        image,
+        amountNeeded: Number(amount) || 0
       });
 
       setResult(res.data);
@@ -50,6 +52,14 @@ export default function Requester() {
           placeholder="Describe your need..."
           value={text}
           onChange={e => setText(e.target.value)}
+        />
+
+        <input
+          type="number"
+          className="w-full border rounded p-2 mb-3"
+          placeholder="Amount needed (₹)"
+          value={amount}
+          onChange={e => setAmount(e.target.value)}
         />
 
         <input
