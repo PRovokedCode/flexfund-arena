@@ -1,11 +1,26 @@
 import { useState } from "react";
 import Requester from "./Requester";
+import RichGuy from "./RichGuy";
 
 function App() {
   const [mode, setMode] = useState("landing");
 
   if (mode === "requester") {
-    return <Requester />;
+    return (
+      <Requester
+        goBack={() => setMode("landing")}
+        goRich={() => setMode("rich")}
+      />
+    );
+  }
+
+  if (mode === "rich") {
+    return (
+      <RichGuy
+        goBack={() => setMode("landing")}
+        goRequester={() => setMode("requester")}
+      />
+    );
   }
 
   return (
@@ -17,7 +32,10 @@ function App() {
         I HAVE A REQUEST
       </div>
 
-      <div className="bg-gray-900 text-yellow-400 flex items-center justify-center text-2xl cursor-pointer">
+      <div
+        onClick={() => setMode("rich")}
+        className="bg-gray-900 text-yellow-400 flex items-center justify-center text-2xl cursor-pointer"
+      >
         I AM THE RICH GUY!!
       </div>
     </div>

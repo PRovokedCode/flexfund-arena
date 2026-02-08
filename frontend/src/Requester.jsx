@@ -2,7 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { API_BASE } from "./config";
 
-export default function Requester() {
+export default function Requester({ goBack, goRich }) {
   const [text, setText] = useState("");
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -46,6 +46,23 @@ export default function Requester() {
         <h2 className="text-xl font-bold mb-4">
           Submit Your Request
         </h2>
+
+        <div className="flex gap-3 mb-4">
+          <button
+            onClick={goBack}
+            className="bg-gray-700 text-white px-3 py-1 rounded text-sm"
+          >
+            ← Back to Home
+          </button>
+
+          <button
+            onClick={goRich}
+            className="bg-yellow-500 text-black px-3 py-1 rounded text-sm"
+          >
+            Go to Rich Guy Arena →
+          </button>
+        </div>
+
 
         <textarea
           className="w-full border rounded p-2 mb-3"
