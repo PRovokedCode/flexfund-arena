@@ -14,18 +14,19 @@ export default function Payment() {
 
   if (!request) {
     return (
-      <div className="h-screen flex items-center justify-center text-gray-600 page-transition">
+      <div
+        style={{
+          height: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "#94a3b8",
+        }}
+      >
         Invalid request.
       </div>
     );
   }
-
-  const flexStyle =
-    request.flexValue >= 70
-      ? "bg-red-500/10 text-red-600 ring-1 ring-red-500/30"
-      : request.flexValue >= 40
-      ? "bg-yellow-400/10 text-yellow-700 ring-1 ring-yellow-400/30"
-      : "bg-green-500/10 text-green-600 ring-1 ring-green-500/30";
 
   const handlePay = async () => {
     const amt = Number(amount);
@@ -41,10 +42,8 @@ export default function Payment() {
         payerName,
       });
 
-      // 🎉 Trigger success animation
       setSuccess(true);
 
-      // Auto redirect after animation
       setTimeout(() => {
         navigate("/rich-guy");
       }, 1500);
@@ -55,18 +54,59 @@ export default function Payment() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6 page-transition relative">
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "linear-gradient(180deg, #0f172a, #020617)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "32px",
+        color: "white",
+      }}
+    >
       {/* SUCCESS OVERLAY */}
       {success && (
-        <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-8 flex flex-col items-center animate-scale-in">
-            <div className="w-16 h-16 rounded-full bg-green-500 flex items-center justify-center mb-4">
-              <span className="text-white text-3xl">✔</span>
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "rgba(0,0,0,0.6)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 50,
+          }}
+        >
+          <div
+            style={{
+              background: "#020617",
+              borderRadius: "20px",
+              padding: "32px",
+              textAlign: "center",
+              animation: "scaleIn 0.35s ease",
+            }}
+          >
+            <div
+              style={{
+                width: "64px",
+                height: "64px",
+                borderRadius: "999px",
+                background: "#22c55e",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto 16px",
+                fontSize: "28px",
+              }}
+            >
+              ✔
             </div>
-            <h2 className="text-xl font-bold mb-1">
+
+            <h2 style={{ fontSize: "20px", fontWeight: 800 }}>
               Payment Successful
             </h2>
-            <p className="text-gray-500 text-sm">
+            <p style={{ color: "#94a3b8", fontSize: "13px" }}>
               Redirecting to Arena…
             </p>
           </div>
@@ -74,53 +114,84 @@ export default function Payment() {
       )}
 
       {/* PAYMENT CARD */}
-      <div className="w-full max-w-xl bg-white rounded-2xl shadow-lg p-6">
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "520px",
+          background: "linear-gradient(180deg, #1e293b, #0f172a)",
+          borderRadius: "24px",
+          padding: "28px",
+          boxShadow: "0 40px 80px rgba(0,0,0,0.45)",
+          animation: "fadeUp 0.6s ease",
+        }}
+      >
         <button
           onClick={() => navigate(-1)}
-          className="text-sm text-gray-500 hover:text-black mb-4"
+          style={{
+            background: "transparent",
+            border: "1px solid #334155",
+            color: "#e5e7eb",
+            padding: "6px 14px",
+            borderRadius: "999px",
+            fontSize: "13px",
+            cursor: "pointer",
+            marginBottom: "20px",
+          }}
         >
           ← Back
         </button>
 
-        <h1 className="text-2xl font-bold mb-1">
+        <h1 style={{ fontSize: "26px", fontWeight: 800, marginBottom: "6px" }}>
           💰 Fund an AI-Verified Request
         </h1>
 
-        <p className="text-sm text-gray-500 mb-4">
+        <p style={{ color: "#94a3b8", fontSize: "14px", marginBottom: "20px" }}>
           You are supporting a request approved by Gemini
         </p>
 
-        <div className="mb-4">
-          <p className="font-semibold text-lg">
+        <div
+          style={{
+            background: "#020617",
+            borderRadius: "18px",
+            padding: "18px",
+            marginBottom: "20px",
+          }}
+        >
+          <h3 style={{ fontSize: "16px", fontWeight: 700, marginBottom: "6px" }}>
             {request.headline}
+          </h3>
+
+          <p style={{ fontSize: "13px", color: "#cbd5f5" }}>
+            {request.text || "No description provided."}
           </p>
 
-          {request.text !== request.headline && (
-            <p className="text-sm text-gray-600 mt-1">
-              {request.text}
-            </p>
-          )}
-        </div>
-
-        <div className="flex justify-between items-center mb-4">
-          <span className="text-green-600 font-medium">
-            Needed: ₹{request.amountNeeded}
-          </span>
-
-          <span
-            className={`text-xs font-bold px-3 py-1 rounded-full ${flexStyle}`}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginTop: "14px",
+              fontSize: "13px",
+              color: "#94a3b8",
+            }}
           >
-            ⚡ Flex {request.flexValue}
-          </span>
+            <span>Needed ₹{request.amountNeeded}</span>
+            <span>⚡ Flex {request.flexValue}</span>
+          </div>
         </div>
 
         <input
-          type="text"
           value={payerName}
           onChange={(e) => setPayerName(e.target.value)}
           placeholder="Your name"
-          className="w-full border rounded-lg px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-indigo-400"
           disabled={success}
+          style={{
+            width: "100%",
+            padding: "12px",
+            borderRadius: "12px",
+            border: "none",
+            marginBottom: "12px",
+            outline: "none",
+          }}
         />
 
         <input
@@ -128,26 +199,58 @@ export default function Payment() {
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           placeholder="Amount to fund (₹)"
-          className="w-full border rounded-lg px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-400"
           disabled={success}
+          style={{
+            width: "100%",
+            padding: "12px",
+            borderRadius: "12px",
+            border: "none",
+            marginBottom: "18px",
+            outline: "none",
+          }}
         />
 
         <button
           onClick={handlePay}
           disabled={success}
-          className="
-            w-full py-3 rounded-xl
-            bg-gradient-to-r from-yellow-400 to-yellow-300
-            text-black font-semibold
-            transition-all duration-300
-            hover:from-yellow-300 hover:to-yellow-200
-            hover:scale-[1.02]
-            disabled:opacity-60
-          "
+          style={{
+            width: "100%",
+            padding: "14px",
+            borderRadius: "999px",
+            border: "none",
+            fontWeight: 800,
+            fontSize: "15px",
+            cursor: success ? "default" : "pointer",
+            color: "#020617",
+            background: "linear-gradient(135deg, #34d399, #22c55e)",
+            boxShadow: "0 16px 35px rgba(0,0,0,0.45)",
+            transition: "transform 0.2s ease",
+          }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.transform = "scale(1.03)")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.transform = "scale(1)")
+          }
         >
           Pay Now
         </button>
       </div>
+
+      {/* ANIMATIONS */}
+      <style>
+        {`
+          @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(18px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+
+          @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.85); }
+            to { opacity: 1; transform: scale(1); }
+          }
+        `}
+      </style>
     </div>
   );
 }

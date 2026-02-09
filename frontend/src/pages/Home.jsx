@@ -1,50 +1,19 @@
-import { useNavigate } from "react-router-dom";
+import HeroBanner from "../components/HeroBanner";
+import StatsRow from "../components/StatsRow";
+import ActionCards from "../components/ActionCards";
 
 export default function Home() {
-  const navigate = useNavigate();
-
   return (
-    <div className="h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 to-black text-white page-transition">
-      {/* Title */}
-      <h1 className="text-4xl font-extrabold mb-2 animate-fade-in">
-        FlexFund Arena
-      </h1>
+    <div className="min-h-screen bg-gray-100 flex justify-center px-4 py-10 page-animate">
+      <div className="w-full max-w-4xl space-y-10">
+        <HeroBanner />
+        <StatsRow />
+        <ActionCards />
 
-      <p className="text-gray-400 mb-10 text-center max-w-md animate-fade-in-delay">
-        Two roles. One arena.  
-        AI decides what gets funded.
-      </p>
-
-      {/* Buttons */}
-      <div className="flex flex-col gap-5 w-72">
-        <button
-          onClick={() => navigate("/requester")}
-          className="
-            bg-indigo-600 py-4 rounded-xl font-semibold text-lg
-            transition-all duration-300
-            hover:scale-105 hover:bg-indigo-700
-            shadow-lg
-          "
-        >
-          🙋 I Have a Request
-        </button>
-
-        <button
-          onClick={() => navigate("/rich-guy")}
-          className="
-            bg-yellow-400 text-black py-4 rounded-xl font-semibold text-lg
-            transition-all duration-300
-            hover:scale-105 hover:bg-yellow-300
-            shadow-lg
-          "
-        >
-          💰 I Am the Rich Guy
-        </button>
+        <p className="text-center text-xs text-gray-500">
+          Powered by AI moderation (with fallback)
+        </p>
       </div>
-
-      <p className="mt-10 text-xs text-gray-500 animate-pulse">
-        Powered by AI moderation
-      </p>
     </div>
   );
 }

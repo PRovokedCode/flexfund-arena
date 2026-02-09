@@ -7,13 +7,23 @@ import RequestCard from "../components/RequestCard";
 export default function RichGuy() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const navigate = useNavigate();
 
   const fetchArena = async () => {
     try {
       const res = await axios.get(`${API_BASE}/arena`);
-      setRequests(res.data.requests || []);
+
+      const raw = res.data.requests || [];
+
+      // 🔧 FIX: normalize fallback amount WITHOUT touching UI
+      const normalized = raw.map((req) => ({
+        ...req,
+        amountNeeded:
+          req.amountNeeded ??
+          (typeof req.flexValue === "number" ? req.flexValue : null),
+      }));
+
+      setRequests(normalized);
     } catch (err) {
       console.error("Arena fetch failed:", err);
       setRequests([]);
@@ -28,84 +38,176 @@ export default function RichGuy() {
 
   if (loading) {
     return (
-      <div className="h-screen flex items-center justify-center text-gray-400 animate-pulse page-transition">
+      <div
+        style={{
+          height: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "#cbd5f5",
+          fontSize: "16px",
+          animation: "pulse 1.5s infinite",
+        }}
+      >
         Loading AI-verified requests…
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white p-8 page-transition">
-      {/* Top navigation */}
-      <div className="flex gap-3 mb-6">
-        <button
-          onClick={() => navigate("/")}
-          className="bg-gray-700 hover:bg-gray-600 transition text-white px-3 py-1 rounded text-sm"
-        >
-          ← Home
-        </button>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "linear-gradient(180deg, #0f172a, #020617)",
+        color: "white",
+        paddingBottom: "80px",
+      }}
+    >
+      {/* HEADER */}
+      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "32px 24px" }}>
+        <div style={{ display: "flex", gap: "12px", marginBottom: "28px" }}>
+          {[
+            { label: "← Home", action: () => navigate("/") },
+            { label: "Make a Request →", action: () => navigate("/requester") },
+            { label: "🔄 Refresh", action: fetchArena },
+          ].map((btn, i) => (
+            <button
+              key={i}
+              onClick={btn.action}
+              style={{
+                background: "#ffffff",
+                color: "#0f172a",
+                padding: "6px 14px",
+                borderRadius: "999px",
+                fontSize: "13px",
+                fontWeight: 600,
+                border: "none",
+                cursor: "pointer",
+                boxShadow: "0 6px 16px rgba(0,0,0,0.25)",
+              }}
+            >
+              {btn.label}
+            </button>
+          ))}
+        </div>
 
-        <button
-          onClick={() => navigate("/requester")}
-          className="bg-indigo-600 hover:bg-indigo-700 transition text-white px-3 py-1 rounded text-sm"
+        <h1
+          style={{
+            fontSize: "34px",
+            fontWeight: 800,
+            marginBottom: "8px",
+            color: "white",
+            animation: "fadeSlide 0.6s ease forwards",
+          }}
         >
-          Make a Request →
-        </button>
-
-        <button
-          onClick={fetchArena}
-          className="bg-blue-600 hover:bg-blue-700 transition text-white px-3 py-1 rounded text-sm"
-        >
-          🔄 Refresh
-        </button>
-      </div>
-
-      {/* Arena header */}
-      <div className="mb-8 animate-fade-in">
-        <h1 className="text-3xl font-extrabold mb-2">
           🔥 Rich Guy Arena
         </h1>
-        <p className="text-gray-400 max-w-xl">
-          Browse AI-verified requests and fund what you believe in.
-          Every request below has passed Gemini’s moderation.
+
+        <p
+          style={{
+            color: "#c7d2fe",
+            maxWidth: "560px",
+            animation: "fadeSlide 0.8s ease forwards",
+          }}
+        >
+          Every request below has been verified by AI. Fund what you believe
+          deserves support.
         </p>
       </div>
 
-      {/* Feed */}
-      <div className="max-w-3xl mx-auto space-y-8">
+      {/* FEED */}
+      <div
+        style={{
+          maxWidth: "1100px",
+          margin: "0 auto",
+          padding: "0 24px",
+          display: "grid",
+          gap: "28px",
+          gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+        }}
+      >
         {requests.length === 0 && (
-          <p className="text-gray-500 text-center">
+          <p style={{ color: "#94a3b8", textAlign: "center", marginTop: "80px" }}>
             No verified requests yet.
           </p>
         )}
 
-        {requests.map((req) => (
-          <div key={req.id} className="animate-fade-in">
-            <RequestCard
-              image={req.image ? `data:image/png;base64,${req.image}` : null}
-              title={req.headline}
-              tag={req.category.replace("#", "")}
-              flexValue={req.flexValue}
-              onFund={() =>
-                navigate("/pay", { state: { request: req } })
-              }
-            />
+        {requests.map((req, index) => (
+          <div
+            key={req.id}
+            style={{
+              background: "linear-gradient(180deg, #1e293b, #0f172a)",
+              borderRadius: "20px",
+              padding: "22px",
+              boxShadow: "0 20px 50px rgba(0,0,0,0.35)",
+              animation: `fadeSlide 0.6s ease forwards`,
+              animationDelay: `${index * 120}ms`,
+              opacity: 0,
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <span
+                style={{
+                  background: "#f97316",
+                  color: "#020617",
+                  padding: "4px 10px",
+                  borderRadius: "999px",
+                  fontSize: "11px",
+                  fontWeight: 700,
+                }}
+              >
+                {req.category || "#General"}
+              </span>
 
-            {/* Description (avoid duplicate headline/text) */}
-            {req.text !== req.headline && (
-              <div className="mt-2 text-sm text-gray-300 px-2">
-                <p>{req.text}</p>
-              </div>
-            )}
-
-            <div className="px-2 mt-1">
-              <span className="text-green-400 text-sm">
-                Needed: ₹{req.amountNeeded}
+              <span style={{ fontSize: "12px", color: "#22c55e" }}>
+                ✔ AI Verified
               </span>
             </div>
+
+            <h3 style={{ fontSize: "16px", fontWeight: 700, marginTop: "8px" }}>
+              {req.headline || "Untitled Request"}
+            </h3>
+
+            <p style={{ fontSize: "13px", color: "#cbd5f5", marginTop: "6px" }}>
+              {req.description || "No description provided."}
+            </p>
+
+            <div style={{ fontSize: "12px", color: "#94a3b8", marginTop: "10px" }}>
+              <p>Needed ₹{req.amountNeeded ?? "—"}</p>
+              <p>Flex {req.flexValue} requested</p>
+            </div>
+
+            <button
+              onClick={() => navigate("/pay", { state: { request: req } })}
+              style={{
+                marginTop: "14px",
+                width: "100%",
+                padding: "10px 0",
+                borderRadius: "999px",
+                border: "none",
+                cursor: "pointer",
+                fontWeight: 700,
+                color: "#020617",
+                background: "linear-gradient(135deg, #34d399, #22c55e)",
+                boxShadow: "0 10px 25px rgba(0,0,0,0.35)",
+              }}
+            >
+              Fund This
+            </button>
           </div>
         ))}
       </div>
+
+      <style>{`
+        @keyframes fadeSlide {
+          from { opacity: 0; transform: translateY(14px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse {
+          0%,100% { opacity: 0.6; }
+          50% { opacity: 1; }
+        }
+      `}</style>
     </div>
   );
 }

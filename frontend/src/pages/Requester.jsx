@@ -27,7 +27,10 @@ export default function Requester() {
   };
 
   const verifyWithAI = async () => {
-    if (!text.trim()) return alert("Please describe your request.");
+    if (!text.trim()) {
+      alert("Please describe your request.");
+      return;
+    }
 
     setLoading(true);
     setVerifiedData(null);
@@ -40,98 +43,256 @@ export default function Requester() {
       });
 
       if (res.data.status === "verified") {
-        setVerifiedData(res.data.aiResult);
+        setVerifiedData({
+          ...res.data.aiResult,
+          amountNeeded: Number(amount) || 0, // 🔒 FORCE PRESERVE
+          fallback: false,
+        });
       } else {
         alert("Rejected: " + res.data.reason);
       }
-    } catch {
-      alert("AI verification failed.");
+    } catch (err) {
+      console.error("Gemini error:", err);
+
+      // ✅ CORRECT FALLBACK (SCHEMA SAFE)
+      setVerifiedData({
+        headline: text.slice(0, 60) + (text.length > 60 ? "..." : ""),
+        description: text,
+        category: "#General",
+        amountNeeded: Number(amount) || 0, // ✅ FIX
+        flexValue: 0,                      // ✅ FIX
+        fallback: true,
+      });
+
+      alert(
+        "⚠ Gemini verification failed.\nProceeding with fallback verification."
+      );
     } finally {
       setLoading(false);
     }
   };
 
   const submitToArena = async () => {
-    await axios.post(`${API_BASE}/submit-to-arena`, {
-      aiResult: verifiedData,
-    });
+    try {
+      await axios.post(`${API_BASE}/submit-to-arena`, {
+        aiResult: verifiedData,
+      });
 
-    alert("Request added to Arena!");
-    navigate("/rich-guy");
+      alert("Request added to Arena!");
+      navigate("/rich-guy");
+    } catch {
+      alert("Failed to submit to Arena.");
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-8 page-transition">
-      <div className="flex gap-3 mb-6">
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "#f1f5f9",
+        padding: "32px",
+        animation: "fadeIn 0.6s ease",
+      }}
+    >
+      {/* TOP NAV */}
+      <div style={{ display: "flex", gap: "12px", marginBottom: "24px" }}>
         <button
           onClick={() => navigate("/")}
-          className="bg-gray-700 px-3 py-1 rounded text-sm"
+          style={{
+            padding: "6px 14px",
+            borderRadius: "999px",
+            border: "1px solid #cbd5e1",
+            background: "white",
+            cursor: "pointer",
+          }}
         >
           ← Home
         </button>
 
         <button
           onClick={() => navigate("/rich-guy")}
-          className="bg-yellow-400 text-black px-3 py-1 rounded text-sm"
+          style={{
+            padding: "6px 14px",
+            borderRadius: "999px",
+            border: "1px solid #cbd5e1",
+            background: "white",
+            cursor: "pointer",
+          }}
         >
           Go to Arena →
         </button>
       </div>
 
-      <h2 className="text-2xl font-bold mb-2 animate-fade-in">
+      <h1 style={{ fontSize: "28px", fontWeight: 800, marginBottom: "6px" }}>
         Submit a Request
-      </h2>
+      </h1>
+      <p style={{ color: "#64748b", marginBottom: "24px" }}>
+        Fund your fun. Gemini verifies it before gets funded.
+      </p>
 
-      <div className="max-w-2xl space-y-4 animate-fade-in">
+      {/* CARD */}
+      <div
+        style={{
+          maxWidth: "900px",
+          background: "#1f2a4f",
+          borderRadius: "22px",
+          padding: "32px",
+          color: "white",
+          boxShadow: "0 30px 60px rgba(0,0,0,0.35)",
+          animation: "slideUp 0.7s ease",
+        }}
+      >
+        <h2 style={{ fontSize: "22px", fontWeight: 700, marginBottom: "16px" }}>
+          Submit a Request
+        </h2>
+
         <textarea
-          className="w-full p-3 rounded text-black"
-          placeholder="Describe what you need…"
           value={text}
           onChange={(e) => setText(e.target.value)}
           disabled={loading}
+          placeholder="Describe what you need..."
+          style={{
+            width: "100%",
+            padding: "14px",
+            borderRadius: "12px",
+            border: "none",
+            outline: "none",
+            fontSize: "14px",
+            marginBottom: "18px",
+          }}
         />
+
+        <label
+          style={{
+            fontSize: "13px",
+            color: "#38bdf8",
+            fontWeight: 600,
+          }}
+        >
+          Amount needed (₹)
+        </label>
 
         <input
           type="number"
-          className="w-full p-3 rounded text-black"
-          placeholder="Amount needed (₹)"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
+          placeholder="Enter amount"
+          style={{
+            width: "100%",
+            padding: "14px",
+            borderRadius: "12px",
+            border: "2px solid #22d3ee",
+            outline: "none",
+            marginTop: "6px",
+            marginBottom: "18px",
+          }}
         />
 
-        <input type="file" accept="image/*" onChange={handleImageChange} />
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: "16px",
+          }}
+        >
+          <input type="file" accept="image/*" onChange={handleImageChange} />
+
+          <button
+            onClick={verifyWithAI}
+            disabled={loading}
+            style={{
+              background: "linear-gradient(135deg, #34d399, #22c55e)",
+              padding: "12px 26px",
+              borderRadius: "999px",
+              border: "none",
+              color: "white",
+              fontWeight: 700,
+              cursor: loading ? "not-allowed" : "pointer",
+              boxShadow: "0 10px 25px rgba(0,0,0,0.3)",
+            }}
+          >
+            {loading ? "🧠 Gemini scanning..." : "Verify with AI"}
+          </button>
+        </div>
 
         {imagePreview && (
           <img
             src={imagePreview}
             alt="preview"
-            className="w-64 h-40 object-cover rounded"
+            style={{
+              marginTop: "18px",
+              width: "260px",
+              height: "160px",
+              objectFit: "cover",
+              borderRadius: "12px",
+            }}
           />
         )}
 
-        <button
-          onClick={verifyWithAI}
-          disabled={loading}
-          className="bg-indigo-600 px-6 py-2 rounded font-semibold"
-        >
-          {loading ? "🧠 Gemini scanning…" : "Verify with AI"}
-        </button>
-
         {verifiedData && (
-          <div className="bg-white text-black p-4 rounded">
-            <p className="font-bold text-green-600">✔ AI Verified</p>
-            <p><b>Headline:</b> {verifiedData.headline}</p>
-            <p><b>Flex:</b> {verifiedData.flexValue}</p>
+          <div
+            style={{
+              marginTop: "24px",
+              background: "white",
+              color: "black",
+              padding: "18px",
+              borderRadius: "14px",
+              animation: "fadeIn 0.4s ease",
+            }}
+          >
+            <p
+              style={{
+                fontWeight: 800,
+                color: verifiedData.fallback ? "#f59e0b" : "#16a34a",
+                marginBottom: "8px",
+              }}
+            >
+              {verifiedData.fallback
+                ? "⚠ Fallback Verification (Low Confidence)"
+                : "✔ AI Verified by Gemini"}
+            </p>
+
+            <p>
+              <b>Headline:</b> {verifiedData.headline}
+            </p>
+            <p>
+              <b>Flex:</b> {verifiedData.flexValue}
+            </p>
 
             <button
               onClick={submitToArena}
-              className="mt-3 bg-green-600 text-white px-4 py-2 rounded"
+              style={{
+                marginTop: "14px",
+                background: "#16a34a",
+                color: "white",
+                padding: "10px 22px",
+                borderRadius: "999px",
+                border: "none",
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
             >
               Submit to Arena
             </button>
           </div>
         )}
       </div>
+
+      <style>
+        {`
+          @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+
+          @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+        `}
+      </style>
     </div>
   );
 }
